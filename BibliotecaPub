@@ -1,0 +1,112 @@
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Cliente {
+    private String nome;
+    private String cpf;
+
+    public Cliente(String nome, String cpf) {
+        this.nome = nome;
+        this.cpf = cpf;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+public abstract class Livro {
+    private String titulo;
+    private String autor;
+    private boolean disponivel;
+
+    public Livro(String titulo, String autor) {
+        this.titulo = titulo;
+        this.autor = autor;
+        this.disponivel = true;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public String getAutor() {
+        return autor;
+    }
+
+    public boolean isDisponivel() {
+        return disponivel;
+    }
+
+    public void setDisponivel(boolean disponivel) {
+        this.disponivel = disponivel;
+    }
+public class LivroComum extends Livro {
+    public LivroComum(String titulo, String autor) {
+        super(titulo, autor);
+    }
+public class LivroRaro extends Livro {
+    private String explicacaoRaridade;
+
+    public LivroRaro(String titulo, String autor, String explicacaoRaridade) {
+        super(titulo, autor);
+        this.explicacaoRaridade = explicacaoRaridade;
+    }
+
+    public String getExplicacaoRaridade() {
+        return explicacaoRaridade;
+    }
+
+    public boolean isDisponivel() {
+        return false;
+   }
+
+public class SistemaBiblioteca {
+    private List<Cliente> clientes = new ArrayList<>();
+    private List<Livro> livros = new ArrayList<>();
+
+    public void cadastrarCliente(Cliente cliente) {
+        clientes.add(cliente);
+    }
+
+    public void cadastrarLivro(Livro livro) {
+        livros.add(livro);
+    }
+
+    public Livro buscarLivroPorTitulo(String titulo) {
+        return livros.stream()
+                .filter(livro -> livro.getTitulo().equalsIgnoreCase(titulo))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Livro buscarLivroPorAutor(String autor) {
+        return livros.stream()
+                .filter(livro -> livro.getAutor().equalsIgnoreCase(autor))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public boolean realizarEmprestimo(String titulo) {
+        Livro livro = buscarLivroPorTitulo(titulo);
+        if (livro != null && livro.isDisponivel()) {
+            livro.setDisponivel(false);
+            return true;
+        }
+        return false;
+    }
+
+    public double realizarDevolucao(String titulo, LocalDate dataEmprestimo, LocalDate dataDevolucao) {
+        Livro livro = buscarLivroPorTitulo(titulo);
+        if (livro != null) {
+            livro.setDisponivel(true);
+            long diasAtraso = ChronoUnit.DAYS.between(dataEmprestimo.plusDays(7), dataDevolucao);
+            return diasAtraso > 0 ? diasAtraso * 3.50 : 0.0;
+        }
+        return 0.0;
+    }
+}
